@@ -176,32 +176,34 @@ namespace EasyGameSaver {
 						}
 					}
 
-					var memberCount = br.ReadInt32();
-					for (var j = 0; j < memberCount; j++) {
-						if (br.ReadBoolean()) {
-							var componentName = br.ReadString();
-							var memberName = br.ReadString();
-							var value = br.ReadObject();
-							var component = go.GetComponent(componentName);
-							if (component == null) {
-								Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName}. Component not found.");
-								continue;
-							}
-							var mi = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-							if (mi.Length > 0) {
-								switch (mi[0]) {
-								case FieldInfo fi:
-									fi.SetValue(component, value);
-									break;
-								case PropertyInfo pi:
-									pi.SetValue(component, value);
-									break;
-								default:
-									Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Not support.");
-									break;
+					if (br.ReadBoolean()) {
+						var memberCount = br.ReadInt32();
+						for (var j = 0; j < memberCount; j++) {
+							if (br.ReadBoolean()) {
+								var componentName = br.ReadString();
+								var memberName = br.ReadString();
+								var value = br.ReadObject();
+								var component = go.GetComponent(componentName);
+								if (component == null) {
+									Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName}. Component not found.");
+									continue;
 								}
-							} else {
-								Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Member not found.");
+								var mi = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+								if (mi.Length > 0) {
+									switch (mi[0]) {
+									case FieldInfo fi:
+										fi.SetValue(component, value);
+										break;
+									case PropertyInfo pi:
+										pi.SetValue(component, value);
+										break;
+									default:
+										Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Not support.");
+										break;
+									}
+								} else {
+									Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Member not found.");
+								}
 							}
 						}
 					}

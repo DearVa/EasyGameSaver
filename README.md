@@ -20,4 +20,8 @@ EasyGameSaver：易于使用的通用存档脚本
 
 注意事项：
 -------
-加载存档时依靠Prefab的hash值查找并恢复，要确保GameSaveMgr中Registered Prefabs的hash值没有重复且在存档后不要更改。  
+加载存档时依靠Registered Prefab的hash值查找原有Prefab，要确保GameSaveMgr中Registered Prefabs的hash值没有重复且在存档后不要更改。
+
+鸣谢：
+-------
+https://github.com/Deadcows/MyBox

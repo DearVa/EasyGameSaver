@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -40,7 +41,7 @@ namespace EasyGameSaver {
 				root.AddChild(item);
 				rows.Add(item);
 
-				var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(p => p.GetMethod != null && p.SetMethod != null).ToArray();
 				var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				if (props.Length + fields.Length > 0) {
 					if (IsExpanded(item.id)) {

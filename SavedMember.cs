@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace EasyGameSaver {
 	[Serializable]
-	public class SavedMember {
+	internal class SavedMember {
 		public string componentName;
 		public string memberName;
 
