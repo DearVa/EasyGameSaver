@@ -11,7 +11,7 @@ EasyGameSaver：易于使用的通用存档脚本
 -------
 1. 在场景中新建一个空物体，添加GameSaveMgr组件；
 2. 将GameSaver添加到要保存的GameObject上，如果是Prefab，请将该Prefab添加到GameSaveMgr上的Registered Prefabs中；
-3. 随时调用GameSaveMgr.Save(存档名称)来保存存档，调用GameSaveMgr.Load(存档名称)来加载存档。
+3. 随时调用GameSaveMgr.SaveGame(存档名称)来保存存档，调用GameSaveMgr.LoadGame(存档名称)来加载存档。
 
 已知问题：
 -------
