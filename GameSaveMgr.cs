@@ -163,8 +163,8 @@ namespace EasyGameSaver {
 						}
 					}
 
-					var rb = go.GetComponent<Rigidbody>();
 					if (br.ReadBoolean()) {
+						var rb = go.GetComponent<Rigidbody>();
 						if (rb == null) {
 							rb = go.AddComponent<Rigidbody>();
 						}
@@ -177,33 +177,33 @@ namespace EasyGameSaver {
 					}
 
 					if (br.ReadBoolean()) {
+						var mr = go.GetComponent<MeshRenderer>();
+						if (mr == null) {
+							mr = go.AddComponent<MeshRenderer>();
+						}
+						if (br.ReadBoolean()) {
+							mr.material.color = br.ReadColor();
+						}
+						if (br.ReadBoolean()) {
+							mr.material.mainTexture = (Texture)FindObjectFromInstanceID(br.ReadInt32());
+						}
+						var propertyCount = br.ReadInt32();
+						for (var j = 0; j < propertyCount; j++) {
+							try {
+								SavedMaterial.Load(mr, br);
+							} catch (Exception e) {
+								Debug.LogException(e);
+							}
+						}
+					}
+
+					if (br.ReadBoolean()) {
 						var memberCount = br.ReadInt32();
 						for (var j = 0; j < memberCount; j++) {
-							if (br.ReadBoolean()) {
-								var componentName = br.ReadString();
-								var memberName = br.ReadString();
-								var value = br.ReadObject();
-								var component = go.GetComponent(componentName);
-								if (component == null) {
-									Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName}. Component not found.");
-									continue;
-								}
-								var mi = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-								if (mi.Length > 0) {
-									switch (mi[0]) {
-									case FieldInfo fi:
-										fi.SetValue(component, value);
-										break;
-									case PropertyInfo pi:
-										pi.SetValue(component, value);
-										break;
-									default:
-										Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Not support.");
-										break;
-									}
-								} else {
-									Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Member not found.");
-								}
+							try {
+								SavedMember.Load(go, br);
+							} catch (Exception e) {
+								Debug.LogException(e);
 							}
 						}
 					}

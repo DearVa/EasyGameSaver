@@ -15,15 +15,17 @@ namespace EasyGameSaver {
 		private static readonly BinaryFormatter Bf = new BinaryFormatter();
 		private static readonly MD5 Md5 = new MD5CryptoServiceProvider();
 
-		public static void Write(this BinaryWriter bw, Vector2 v2) {
-			bw.Write(v2.x);
-			bw.Write(v2.y);
-		}
-
 		public static void Write(this BinaryWriter bw, Vector3 v3) {
 			bw.Write(v3.x);
 			bw.Write(v3.y);
 			bw.Write(v3.z);
+		}
+
+		public static void Write(this BinaryWriter bw, Vector4 v4) {
+			bw.Write(v4.x);
+			bw.Write(v4.y);
+			bw.Write(v4.z);
+			bw.Write(v4.w);
 		}
 
 		public static void Write(this BinaryWriter bw, Quaternion q) {
@@ -33,11 +35,46 @@ namespace EasyGameSaver {
 			bw.Write(q.w);
 		}
 
+		public static void Write(this BinaryWriter bw, Matrix4x4 m) {
+			bw.Write(m.m00); bw.Write(m.m01); bw.Write(m.m02); bw.Write(m.m03);
+			bw.Write(m.m10); bw.Write(m.m11); bw.Write(m.m12); bw.Write(m.m13);
+			bw.Write(m.m20); bw.Write(m.m21); bw.Write(m.m22); bw.Write(m.m23);
+			bw.Write(m.m30); bw.Write(m.m31); bw.Write(m.m32); bw.Write(m.m33);
+		}
+
 		public static void Write(this BinaryWriter bw, Color c) {
 			bw.Write(c.r);
 			bw.Write(c.g);
 			bw.Write(c.b);
 			bw.Write(c.a);
+		}
+
+		public static void WriteArray(this BinaryWriter bw, float[] array) {
+			bw.Write(array.Length);
+			foreach (var v in array) {
+				bw.Write(v);
+			}
+		}
+
+		public static void WriteArray(this BinaryWriter bw, Color[] array) {
+			bw.Write(array.Length);
+			foreach (var v in array) {
+				bw.Write(v);
+			}
+		}
+		
+		public static void WriteArray(this BinaryWriter bw, Vector4[] array) {
+			bw.Write(array.Length);
+			foreach (var v in array) {
+				bw.Write(v);
+			}
+		}
+
+		public static void WriteArray(this BinaryWriter bw, Matrix4x4[] array) {
+			bw.Write(array.Length);
+			foreach (var v in array) {
+				bw.Write(v);
+			}
 		}
 
 		public static void Write(this BinaryWriter bw, object obj) {
@@ -51,13 +88,53 @@ namespace EasyGameSaver {
 
 		public static object ReadObject(this BinaryReader br) => Bf.Deserialize(br.BaseStream);
 
-		public static Vector2 ReadVector2(this BinaryReader br) => new Vector2(br.ReadSingle(), br.ReadSingle());
-
 		public static Vector3 ReadVector3(this BinaryReader br) => new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+
+		public static Vector4 ReadVector4(this BinaryReader br) => new Vector4(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
 
 		public static Quaternion ReadQuaternion(this BinaryReader br) => new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
 
+		public static Matrix4x4 ReadMatrix4x4(this BinaryReader br) =>
+			new Matrix4x4() {
+				m00 = br.ReadSingle(), m01 = br.ReadSingle(), m02 = br.ReadSingle(), m03 = br.ReadSingle(),
+				m10 = br.ReadSingle(), m11 = br.ReadSingle(), m12 = br.ReadSingle(), m13 = br.ReadSingle(),
+				m20 = br.ReadSingle(), m21 = br.ReadSingle(), m22 = br.ReadSingle(), m23 = br.ReadSingle(),
+				m30 = br.ReadSingle(), m31 = br.ReadSingle(), m32 = br.ReadSingle(), m33 = br.ReadSingle()
+			};
+
 		public static Color ReadColor(this BinaryReader br) => new Color(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+
+		public static float[] ReadFloatArray(this BinaryReader br) {
+			var r = new float[br.ReadInt32()];
+			for (var i = 0; i < r.Length; i++) {
+				r[i] = br.ReadSingle();
+			}
+			return r;
+		}
+
+		public static Color[] ReadColorArray(this BinaryReader br) {
+			var r = new Color[br.ReadInt32()];
+			for (var i = 0; i < r.Length; i++) {
+				r[i] = br.ReadColor();
+			}
+			return r;
+		}
+
+		public static Vector4[] ReadVector4Array(this BinaryReader br) {
+			var r = new Vector4[br.ReadInt32()];
+			for (var i = 0; i < r.Length; i++) {
+				r[i] = br.ReadVector4();
+			}
+			return r;
+		}
+
+		public static Matrix4x4[] ReadMatrix4x4Array(this BinaryReader br) {
+			var r = new Matrix4x4[br.ReadInt32()];
+			for (var i = 0; i < r.Length; i++) {
+				r[i] = br.ReadMatrix4x4();
+			}
+			return r;
+		}
 
 		public static string GenerateHash(string name, IEnumerable<string> hashes) {
 			string hash;

@@ -224,6 +224,10 @@ namespace EasyGameSaver {
 				if (saveMainTexture) {
 					bw.Write(mr.material.mainTexture.GetInstanceID());
 				}
+				bw.Write(savedMaterials.Value.Length);
+				foreach (var savedMaterial in savedMaterials.Value) {
+					savedMaterial.Save(mr, bw);
+				}
 			}
 
 			bw.Write(customSaveData);

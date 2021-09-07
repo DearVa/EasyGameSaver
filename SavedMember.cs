@@ -9,7 +9,7 @@ namespace EasyGameSaver {
 		public string componentName;
 		public string memberName;
 
-		public SavedMember(Component component, MemberInfo memberInfo) {
+		internal SavedMember(Component component, MemberInfo memberInfo) {
 			componentName = component.GetType().FullName;
 			var index = componentName.LastIndexOf('.');
 			if (index != -1) {
@@ -18,7 +18,7 @@ namespace EasyGameSaver {
 			memberName = memberInfo.Name;
 		}
 
-		public void Save(GameObject go, BinaryWriter bw) {
+		internal void Save(GameObject go, BinaryWriter bw) {
 			var component = go.GetComponent(componentName);
 			if (component != null) {
 				var membersInfos = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -49,27 +49,35 @@ namespace EasyGameSaver {
 		}
 
 		/// <summary>
-		/// 内部方法，你应该使用GameSaveMgr.LoadGame保存当前Level
+		/// 内部方法，你应该使用GameSaveMgr.LoadGame加载当前Level
 		/// </summary>
-		internal bool Load(GameObject go, object value) {
-			if (string.IsNullOrWhiteSpace(componentName) || string.IsNullOrWhiteSpace(memberName)) {
-				return false;
-			}
-			var component = go.GetComponent(componentName);
-			if (component != null) {
-				var membersInfos = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-				if (membersInfos.Length > 0) {
-					switch (membersInfos[0]) {
+		internal static void Load(GameObject go, BinaryReader br) {
+			if (br.ReadBoolean()) {
+				var componentName = br.ReadString();
+				var memberName = br.ReadString();
+				var value = br.ReadObject();
+				var component = go.GetComponent(componentName);
+				if (component == null) {
+					Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName}. Component not found.");
+					return;
+				}
+				var mi = component.GetType().GetMember(memberName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				if (mi.Length > 0) {
+					switch (mi[0]) {
 					case FieldInfo fi:
 						fi.SetValue(component, value);
-						return true;
+						break;
 					case PropertyInfo pi:
 						pi.SetValue(component, value);
-						return true;
+						break;
+					default:
+						Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Not support.");
+						break;
 					}
+				} else {
+					Debug.LogWarning($"Cannot load GameObject: {go} Component: {componentName} Member: {memberName}. Member not found.");
 				}
 			}
-			return false;
 		}
 
 		public override int GetHashCode() => componentName.GetHashCode() + memberName.GetHashCode();
