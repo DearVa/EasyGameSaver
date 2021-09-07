@@ -5,6 +5,8 @@ EasyGameSaver：易于使用的通用存档脚本
 
 只需添加GameSaver到您想保存的Game Object，调用GameSaveMgr中的Save和Load方法即可实现！
 
+![pic1](./pics/pic1.jpg)
+
 快速上手：
 -------
 1. 在场景中新建一个空物体，添加GameSaveMgr组件；
