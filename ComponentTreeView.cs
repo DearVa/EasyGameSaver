@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,7 @@ using UnityEngine;
 namespace EasyGameSaver {
 	internal class ComponentTreeView : TreeView {
 		private readonly GameSaver gameSaver;
+		private readonly Dictionary<int, Type> componentDict = new Dictionary<int, Type>();
 		private readonly Dictionary<int, SavedMember> memberDict = new Dictionary<int, SavedMember>();
 		private readonly Dictionary<int, List<int>> childrenDict = new Dictionary<int, List<int>>();
 
@@ -78,13 +80,17 @@ namespace EasyGameSaver {
 			}
 		}
 
-		private static TreeViewItem CreateTreeViewItemForComponent(Component component) {
+		private TreeViewItem CreateTreeViewItemForComponent(Component component) {
 			var name = component.GetType().Name;
 			var i = name.LastIndexOf('.');
 			if (i != -1) {
 				name = name.Substring(i);
 			}
-			return new TreeViewItem(component.GetInstanceID(), -1, name);
+			var id = component.GetInstanceID();
+			if (!componentDict.ContainsKey(id)) {
+				componentDict.Add(id, component.GetType());
+			}
+			return new TreeViewItem(id, -1, name);
 		}
 
 		protected override IList<int> GetDescendantsThatHaveChildren(int id) => childrenDict[id];
@@ -92,7 +98,13 @@ namespace EasyGameSaver {
 		protected override void RowGUI(RowGUIArgs args) {
 			extraSpaceBeforeIconAndLabel = 18f;
 
-			if (args.item.depth != 0) {
+			if (args.item.depth == 0) {
+				var icon = EditorGUIUtility.ObjectContent(null, componentDict[args.item.id]).image;
+				if (icon != null) {
+					var rect = new Rect(args.rowRect.x + GetContentIndent(args.item), args.rowRect.y, 16f, 16f);
+					EditorGUI.DrawTextureTransparent(rect, icon, ScaleMode.ScaleToFit);
+				}
+			} else {
 				if (!memberDict.ContainsKey(args.item.id)) {
 					return;
 				}

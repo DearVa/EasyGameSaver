@@ -155,19 +155,23 @@ namespace EasyGameSaver {
 		public readonly Type componentToCheck;
 		public readonly string[] compareValues;
 		public readonly bool inverse;
+		public readonly int indent;
 
 		/// <param name="fieldToCheck">String name of field to check value</param>
 		/// <param name="inverse">Inverse check result</param>
+		/// <param name="indent">Indent</param>
 		/// <param name="compareValues">On which values field will be shown in inspector</param>
-		public ConditionalFieldAttribute(string fieldToCheck, bool inverse = false, params object[] compareValues) {
+		public ConditionalFieldAttribute(string fieldToCheck, bool inverse = false, int indent = 8, params object[] compareValues) {
 			this.fieldToCheck = fieldToCheck;
 			this.inverse = inverse;
+			this.indent = indent;
 			this.compareValues = compareValues.Select(c => c.ToString().ToUpper()).ToArray();
 		}
 
-		public ConditionalFieldAttribute(Type component, bool inverse = false) {
+		public ConditionalFieldAttribute(Type component, bool inverse = false, int indent = 0) {
 			componentToCheck = component;
 			this.inverse = inverse;
+			this.indent = indent;
 		}
 	}
 
@@ -242,6 +246,8 @@ namespace EasyGameSaver {
 			if (!toShow) {
 				return;
 			}
+
+			position = new Rect(position.x + ((ConditionalFieldAttribute)attribute).indent, position.y, position.width, position.height);
 
 			if (customAttributeDrawer != null) {
 				TryUseAttributeDrawer();
@@ -562,7 +568,7 @@ namespace EasyGameSaver {
 
 	[Serializable]
 	public class CollectionWrapper<T> : CollectionWrapperBase {
-		public T[] Value;
+		public List<T> Value;
 	}
 
 	[Serializable]

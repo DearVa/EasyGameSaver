@@ -48,6 +48,7 @@ namespace EasyGameSaver {
 			}
 		}
 
+#if UNITY_EDITOR
 		private void OnValidate() {
 			if (Instance == null) {
 				Instance = this;
@@ -62,6 +63,7 @@ namespace EasyGameSaver {
 				rp.prefabObject.GetComponent<GameSaver>().registeredPrefab = rp;
 			}
 		}
+#endif
 
 		/// <summary>
 		/// ±£¥Ê”Œœ∑
@@ -229,7 +231,7 @@ namespace EasyGameSaver {
 
 		public override void OnInspectorGUI() {
 			DrawDefaultInspector();
-			GUILayout.Label("Save Name");
+			GUILayout.Label("¥Êµµ√˚");
 			saveName = GUILayout.TextField(saveName);
 			if (GUILayout.Button("≤‚ ‘±£¥Ê")) {
 				GameSaveMgr.SaveGame(saveName);

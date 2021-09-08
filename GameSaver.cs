@@ -14,8 +14,8 @@ using UnityEditor.IMGUI.Controls;
 namespace EasyGameSaver {
 	public class GameSaver : MonoBehaviour {
 		[SerializeField]
-		[LabelLocalization("启用", SystemLanguage.ChineseSimplified)]
-		private new bool enabled = true;
+		[LabelLocalization("保存当前物体", SystemLanguage.ChineseSimplified)]
+		private bool saveThis = true;
 
 		[SerializeField]
 		[LabelLocalization("保存Transform", SystemLanguage.ChineseSimplified)]
@@ -43,7 +43,7 @@ namespace EasyGameSaver {
 
 		[SerializeField]
 		[ConditionalField(typeof(Rigidbody))]
-		[LabelLocalization("保存刚体组件", SystemLanguage.ChineseSimplified)]
+		[LabelLocalization("保存Rigidbody", SystemLanguage.ChineseSimplified)]
 		private bool saveRigidbody;
 
 		[SerializeField]
@@ -63,10 +63,12 @@ namespace EasyGameSaver {
 
 		[SerializeField]
 		[ConditionalField("saveMaterial")]
+		[LabelLocalization("保存Material", SystemLanguage.ChineseSimplified)]
 		private bool saveMainColor = true;
 
 		[SerializeField]
 		[ConditionalField("saveMaterial")]
+		[LabelLocalization("保存MainTexture", SystemLanguage.ChineseSimplified)]
 		private bool saveMainTexture = true;
 
 		[SerializeField]
@@ -104,6 +106,7 @@ namespace EasyGameSaver {
 
 		internal static readonly Dictionary<string, GameSaver> PrefabInstances = new Dictionary<string, GameSaver>();
 
+#if UNITY_EDITOR
 		private void OnValidate() {
 			if (gameObject.scene.rootCount == 0) {
 				if (!isPrefab) {
@@ -127,6 +130,7 @@ namespace EasyGameSaver {
 				isPrefab = false;
 			}
 		}
+#endif
 
 		private void Awake() {
 			if (!GameSaveMgr.GameSavers.Contains(this)) {
@@ -142,8 +146,8 @@ namespace EasyGameSaver {
 		/// 内部方法，你应该使用GameSaveMgr.SaveGame保存当前Level
 		/// </summary>
 		internal void Save(BinaryWriter bw) {
-			bw.Write(enabled);
-			if (!enabled) {
+			bw.Write(saveThis);
+			if (!saveThis) {
 				return;
 			}
 
@@ -224,7 +228,7 @@ namespace EasyGameSaver {
 				if (saveMainTexture) {
 					bw.Write(mr.material.mainTexture.GetInstanceID());
 				}
-				bw.Write(savedMaterials.Value.Length);
+				bw.Write(savedMaterials.Value.Count);
 				foreach (var savedMaterial in savedMaterials.Value) {
 					savedMaterial.Save(mr, bw);
 				}
